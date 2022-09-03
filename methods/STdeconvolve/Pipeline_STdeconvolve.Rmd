@@ -1,0 +1,45 @@
+```{r}
+start_time <- Sys.time()
+library(STdeconvolve)
+
+st.data.file = '../datasets/SeqFISH+/stdata_SeqFISH_10000_STdeconvolve.csv'
+
+st.data = read.csv(st.data.file, header = T, row.names = 1)
+st.data.mat = as.matrix(st.data)
+
+## Sanitize spots
+st.counts <- cleanCounts(st.data.mat, min.lib.size = 100)
+
+## Sanitize genes
+st.corpus <- restrictCorpus(st.counts, removeAbove=1.0, removeBelow = 0.05)
+
+## Delete spots who are all zero in gene expressions
+col.sum = apply(st.corpus, 2, FUN=sum)
+st.corpus.rm = st.corpus[,col.sum != 0]
+
+## Record those spots that are deleted to restore in the future
+st.corpus.dl = colnames(st.corpus)[col.sum == 0]
+dl.index = (1:length(colnames(st.corpus)))[col.sum == 0]
+st.corpus
+dl.index
+
+
+## Fitting model and get the optimum
+st.ldas <- fitLDA(t(as.matrix(st.corpus.rm)), Ks = seq(6, 7, by = 1))
+st.optLDA <- optimalModel(models = st.ldas, opt = "min")
+
+## Extract deconvolved cell-type proportions (theta) 
+## and transcriptional profiles (beta)
+st.results <- getBetaTheta(st.optLDA, perc.filt = 0.05, betaScale = 1000)
+
+## Results
+st.deconProp <- st.results$theta
+st.deconGexp <- st.results$beta
+
+# write down proportions
+write.csv(st.deconProp, "../seqFISH_10000_Result/STdeconvolve.csv")
+
+end_time <- Sys.time()
+time = end_time - start_time
+time
+```
