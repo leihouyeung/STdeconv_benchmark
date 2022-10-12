@@ -15,7 +15,7 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 import pickle as pkl
 import scipy.sparse
-
+import gc
 
 #' @param num.cc Number of canonical vectors to calculate
 #' @param seed.use Random seed to set.
@@ -56,10 +56,9 @@ def Embed(data_use1, data_use2, features, count_names, num_cc):
                                 right_index=True,
                                 how='inner')
     new_data1 = combined_data.loc[count_names, ].dropna()
-    # loadings=loadingDim(new.data1,cell.embeddings)
-    loadings = pd.DataFrame(np.matmul(np.matrix(new_data1), cell_embeddings))
-    loadings.index = new_data1.index
-    return embed_results, loadings
+    #loadings = pd.DataFrame(np.matmul(np.matrix(new_data1), cell_embeddings))
+    #loadings.index = new_data1.index
+    return embed_results
 
 
 def checkFeature(data_use, features):
@@ -124,7 +123,6 @@ def MNN(neighbors, colnames, num):
     mnns = pd.DataFrame(np.column_stack((mnn_cell1, mnn_cell2)))
     mnns.columns = ['cell1', 'cell2']
     return mnns
-
 #intra = TRUE时，输入都为real-ST，所以输出不需要合并data1和data2，只保留一个即可
 def AE_dim_reduction(data1,data2,intra = False):
     encoding_dim = 50
@@ -161,13 +159,15 @@ def AE_dim_reduction(data1,data2,intra = False):
                     epochs=5,
                     batch_size=200,
                     shuffle=True)
-
+    print(11)
     # output encoded results
     results = pd.DataFrame(encoder.predict(train).transpose())
+    print(12)
     if intra:
         results.columns = np.array(data1.columns)
     else:
         results.columns = np.concatenate((np.array(data1.columns), np.array(data2.columns)))
+    print(13)
 
     results.index = ['D_' + str(i) for i in range(np.shape(results)[0])]
     results = results.transpose()
@@ -187,7 +187,7 @@ def filterEdge(edges, neighbors, mats, features, k_filter):
     # position = [
     #     np.where(
     #         edges.loc[:, "cell2"][x] == nn[1][edges.loc[:, 'cell1'][x], ])[0]
-    #     for x in range(edges.shape[0])
+    #     for x in range(edges.shape[0])index
     # ]
     # nps = np.concatenate(position, axis=0)
     # fedge = edges.iloc[nps, ]
@@ -195,7 +195,7 @@ def filterEdge(edges, neighbors, mats, features, k_filter):
     for x in range(edges.shape[0]):
         if len(np.where(edges.loc[:, "cell2"][x] == nn[1][edges.loc[:, 'cell1'][x], ])[0]) > 0:
             index.append(x)
-    index = np.unique(index)
+    index = np.unique()
     fedge = edges.iloc[index,]
     print("\t Finally identified ", fedge.shape[0], " MNN edges")
     return (fedge)
@@ -207,7 +207,7 @@ def Link_graph(count_list,
                features,
                combine,
                intra,
-               k_filter=50 ):
+               k_filter= 5 ):
     all_edges = []
     for row in combine:
         i = row[0]
@@ -219,33 +219,46 @@ def Link_graph(count_list,
         scale_data1 = scale_list[i]
         scale_data2 = scale_list[j]
         rowname = counts1.index.to_list()
+        
+        #del scale_list,norm_list,count_list
+        #gc.collect()
 
         encoded = AE_dim_reduction(scale_data1,scale_data2,intra)
-        cell_embedding, loading = Embed(data_use1=scale_data1,
-                                        data_use2=scale_data2,
-                                        features=features,
-                                        count_names=rowname,
-                                        num_cc=3)
-        norm_embedding = l2norm(mat=cell_embedding[0])
+        #print(0)
+        # cell_embedding = Embed(data_use1=scale_data1,
+        #                                 data_use2=scale_data2,
+        #                                 features=features,
+        #                                 count_names=rowname,
+        #                                 num_cc=20)
+        
+        #norm_embedding = l2norm(mat=cell_embedding[0])
 
         #用autoencoder降维方法可代替Embed和l2norm两个function
 
         cells1 = counts1.columns
         cells2 = counts2.columns
-        neighbor = KNN(cell_embedding=encoded,cells1=cells1,cells2=cells2,k=50)
-        #neighbor = KNN(cell_embedding=cell_embedding[0],cells1=cells1,cells2=cells2,k=5)
+        
+        #del count1,count2,scale_data1,scale_data2
+        #gc.collect()
+        
+        neighbor = KNN(cell_embedding=encoded,cells1=cells1,cells2=cells2,k=10)
+        #neighbor = KNN(cell_embedding=cell_embedding[0],cells1=cells1,cells2=cells2,k=20)
         mnn_edges = MNN(neighbors=neighbor,
-                        colnames=cell_embedding[0].index,
-                        num= 50)
+                        colnames=pd.concat([counts1,counts2]).columns,
+                        num= 10)
+        
 
         Mat = pd.concat([norm_data1, norm_data2], axis=1)
-        final_edges = filterEdge(edges=mnn_edges,
-                                 neighbors=neighbor,
-                                 mats=Mat,
-                                 features=features,
-                                 k_filter=k_filter)
-
-        all_edges.append(final_edges)
+        #del norm_data1,norm_data2
+        #gc.collect()
+        print(4)
+        # final_edges = filterEdge(edges=mnn_edges,
+        #                          neighbors=neighbor,
+        #                          mats=Mat,
+        #                          features=features,
+        #                          k_filter=k_filter)
+        print(5)
+        all_edges.append(mnn_edges)
     return all_edges
 
 def Link_Graph(outputdir,mode):
@@ -321,7 +334,7 @@ def input_data(DataDir,mode):
 
     ### if real-wrold data sets, real_st_label is all 0
     pse_train_data, pse_val_data, pse_train_label, pse_val_label = train_test_split(
-        pse_st, pse_st_label, test_size=0.1, random_state=1)
+        pse_st, pse_st_label, test_size=0.2, random_state=1)
     pse_test_data = pse_val_data
     pse_test_label = pse_val_label
 
@@ -357,9 +370,9 @@ def load_data(datadir,mode):
     pse_val_label = np.array(pse_val_label)
 
     #' convert pandas data frame to csr_matrix format
-    pl_train_data = scipy.sparse.csr_matrix(pl_train_data.astype('Float64'))
-    pse_val_data = scipy.sparse.csr_matrix(pse_val_data.astype('Float64'))
-    pse_test_data = scipy.sparse.csr_matrix(pse_test_data.astype('Float64'))
+    pl_train_data = scipy.sparse.csr_matrix(pl_train_data.astype('float'))
+    pse_val_data = scipy.sparse.csr_matrix(pse_val_data.astype('float'))
+    pse_test_data = scipy.sparse.csr_matrix(pse_test_data.astype('float'))
 
     #' @param M; the number of labeled pseduoST samples in training set
     pse_train_data_len = len(pse_train_data)
@@ -431,11 +444,11 @@ def load_data(datadir,mode):
     #' ---------------------------------------------
     #cells的两列全都是real-ST data
 
-    ###for ablation(connection)
+    #for ablation(connection)
     cells = id_graph2[['cell1','cell2']] + len(pse_train_data)
     id_grp1 = np.array([0,0])
     id_grp2 = np.array([0,0])
-
+    
     for i in range(len(id_graph2)):
         id_grp1 = np.row_stack((id_grp1,[cells.iloc[i,0], cells.iloc[i,1]]))
         id_grp2 = np.row_stack((id_grp2,[cells.iloc[i,1], cells.iloc[i,0]]))
@@ -469,8 +482,8 @@ def load_data(datadir,mode):
 
     ###for ablation(connection)
     for i in range(len(id_grp1)):
-       matrix[id_grp1[i][0],id_grp1[i][1]] = 1
-       matrix[id_grp2[i][0],id_grp2[i][1]] = 1
+        matrix[id_grp1[i][0],id_grp1[i][1]] = 1
+        matrix[id_grp2[i][0],id_grp2[i][1]] = 1
 
     for i in range(len(id_gp1)):
         matrix[id_gp1[i][0],id_gp1[i][1]] = 1

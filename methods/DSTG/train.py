@@ -21,10 +21,10 @@ tf.set_random_seed(seed)
 flags = tf.app.flags
 FLAGS = flags.FLAGS
 flags.DEFINE_string('dataset', 'Datadir', 'Input data')
-flags.DEFINE_string('result', 'SD2_Result', 'Output result')
+flags.DEFINE_string('result', 'DSTG_Result', 'Output result')
 flags.DEFINE_string('model', 'SD2', 'Model string.')
 flags.DEFINE_float('learning_rate', 0.1, 'Initial learning rate.')
-flags.DEFINE_integer('epochs', 600, 'Number of epochs to train.')
+flags.DEFINE_integer('epochs', 100, 'Number of epochs to train.')
 flags.DEFINE_integer('hidden1', 10, 'Number of units in hidden layer 1.')
 flags.DEFINE_float('dropout', 0, 'Dropout rate (1 - keep probability).')
 flags.DEFINE_float('weight_decay', 0,

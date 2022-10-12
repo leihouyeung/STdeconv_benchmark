@@ -1,11 +1,6 @@
-import pickle as pkl
-import scipy.sparse
 import numpy as np
-import pandas as pd
 from scipy import sparse as sp
-import networkx as nx
 from collections import defaultdict
-from scipy.stats import uniform
 import tensorflow as tf
 from sklearn import preprocessing
 

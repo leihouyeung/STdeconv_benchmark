@@ -1,5 +1,5 @@
 from layers import *
-from utils import *
+from gutils import *
 
 flags = tf.app.flags
 FLAGS = flags.FLAGS
@@ -83,9 +83,9 @@ class Model(object):
         print("Model restored from file: %s" % save_path)
 
 
-class DSTG(Model):
+class SD2(Model):
     def __init__(self, placeholders, input_dim, **kwargs):
-        super(DSTG, self).__init__(**kwargs)
+        super(SD2, self).__init__(**kwargs)
 
         self.inputs = placeholders['features']
         self.input_dim = input_dim

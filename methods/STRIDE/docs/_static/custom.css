@@ -1,0 +1,85 @@
+/* This file intentionally left blank. */
+
+
+.wy-nav-content {
+  max-width: 1000px;
+}
+
+.vp-sidebar {
+  /*background: #f1faee;*/
+  width: 18rem;
+}
+
+/*.navbar {
+  background: #F1FAEE;
+}*/
+
+.navbar .site-name {
+  border-bottom:2px solid #a8dadc;
+  color: #1D3557;
+}
+
+.align-default {
+  text-align: left;
+}
+
+.highlight {
+  background: #203A5C;
+}
+
+.highlight pre {
+  padding: 1.1rem !important;
+  font-size: 14px;
+}
+
+.token.inserted {
+  color:#457b9d;
+}
+
+a {
+  color:#457b9d;
+}
+
+p a code {
+  color:#457b9d;
+}
+
+.nav-links a.router-link-active,.nav-links a:hover {
+  color:#457b9d;
+}
+
+.vp-sidebar .searchbox {
+  padding: 1.5rem 0 1.5rem 1.5rem;
+}
+
+.vp-sidebar .toctree-l1 a.current,.vp-sidebar .toctree-l2 a.current {
+  color:#457b9d;
+}
+
+.vp-sidebar .toctree-l1 a:hover,.vp-sidebar .toctree-l2 a:hover {
+  color:#457b9d;
+}
+
+.vp-sidebar .toctree-l1.current a {
+  border-left: .5rem solid #a8dadc;
+}
+
+.vp-sidebar .toctree-l1 a.current {
+  border-left-color: #457b9d;
+}
+
+.page-edit, .page-nav {
+  max-width: 840px;
+  padding-left: 0;
+  padding-right: 0;
+}
+
+@media (min-width:719px) {
+  .nav-links a.router-link-active,.nav-links a:hover {
+    color:#2c3e50
+  }
+  .nav-item>a:not(.external).router-link-active,.nav-item>a:not(.external):hover {
+    margin-bottom:-2px;
+    border-bottom:2px solid #a8dadc
+  }
+}

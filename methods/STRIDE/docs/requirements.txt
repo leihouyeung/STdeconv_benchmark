@@ -1,0 +1,4 @@
+Sphinx
+nbsphinx
+sphinx-gallery
+sphinx_press_theme

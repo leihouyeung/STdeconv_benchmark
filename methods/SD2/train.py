@@ -1,11 +1,9 @@
-import os
-import sys
+
 import time
 import numpy as np
-import pickle as pkl
 import tensorflow as tf
-from utils import *
-from models import DSTG
+from gutils import *
+from models import SD2
 import pandas as pd
 import warnings
 import argparse
@@ -17,19 +15,14 @@ seed = 123
 np.random.seed(seed)
 tf.compat.v1.set_random_seed(seed)
 tf.set_random_seed(seed)
-#parser.add_argument("-m", help="this is the mode of position", type=str, required=True)
-#args = parser.parse_args()
-mode = 'pseudo'
-modes = ['anterior1','anterior2','posterior1','posterior2','kidney',
-         'pseudo','PDAC_A_GSM3036911','PDAC_A_GSM4100721','PDAC_A_GSM4100722','PDAC_B_GSM3405534','PDAC_B_GSM4100723','PDAC_B_GSM4100724']
-if mode in modes:
-    print('mode is right!')
+#args.mode = 'pseudo_1x'
+
 # Settings
 flags = tf.app.flags
 FLAGS = flags.FLAGS
 flags.DEFINE_string('dataset', 'Datadir', 'Input data')
-flags.DEFINE_string('result', 'DSTG_Result', 'Output result')
-flags.DEFINE_string('model', 'DSTG', 'Model string.')
+flags.DEFINE_string('result', 'SD2_Result', 'Output result')
+flags.DEFINE_string('model', 'SD2', 'Model string.')
 flags.DEFINE_float('learning_rate', 0.1, 'Initial learning rate.')
 flags.DEFINE_integer('epochs', 100, 'Number of epochs to train.')
 flags.DEFINE_integer('hidden1', 10, 'Number of units in hidden layer 1.')
@@ -38,6 +31,13 @@ flags.DEFINE_float('weight_decay', 0,
                    'Weight for L2 loss on embedding matrix.')
 flags.DEFINE_integer('early_stopping', 50,
                      'Tolerance for early stopping (# of epochs).')
+flags.DEFINE_string('data', 'PDAC_A_GSM4100721',
+                     'mode of data.')
+
+modes = ['anterior1','anterior2','posterior1','posterior2','kidney','pseudo_2x','pseudo_halfx',
+         'pseudo_1x','PDAC_A_GSM3036911','PDAC_A_GSM4100721','PDAC_A_GSM4100722','PDAC_B_GSM3405534','PDAC_B_GSM4100723','PDAC_B_GSM4100724']
+if FLAGS.data in modes:
+    print('mode is right!')
 # Load data
 
 
@@ -46,11 +46,11 @@ flags.DEFINE_integer('early_stopping', 50,
 
 adj, features, labels_binary_train, labels_binary_val, \
 labels_binary_test, train_mask, pred_mask, val_mask, test_mask, new_label, true_label,celltypes = load_data(
-    FLAGS.dataset,mode)
+    FLAGS.dataset,FLAGS.data)
 
 support = [preprocess_adj(adj)]
 num_supports = 1
-model_func = DSTG
+model_func = SD2
 
 # Define placeholders
 placeholders = {

@@ -242,8 +242,8 @@ def Link_graph(count_list,
         #del count1,count2,scale_data1,scale_data2
         #gc.collect()
         
-        neighbor = KNN(cell_embedding=encoded,cells1=cells1,cells2=cells2,k=10)
-        #neighbor = KNN(cell_embedding=cell_embedding[0],cells1=cells1,cells2=cells2,k=200)
+        #neighbor = KNN(cell_embedding=encoded,cells1=cells1,cells2=cells2,k=10)
+        neighbor = KNN(cell_embedding=cell_embedding[0],cells1=cells1,cells2=cells2,k=20)
         mnn_edges = MNN(neighbors=neighbor,
                         colnames=pd.concat([counts1,counts2]).columns,
                         num= 10)
