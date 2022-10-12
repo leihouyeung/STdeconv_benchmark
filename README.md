@@ -13,3 +13,7 @@ For implementation, we followed the codes from all proposed methods with their d
 [stereoscope (v.03)](https://github.com/almaan/stereoscope), [Tangram (v1.0.3)](https://github.com/broadinstitute/Tangram), [Cell2location (v0.1)](https://github.com/BayraktarLab/cell2location), [STdeconvolve (1.0.0)](https://github.com/JEFworks-Lab/STdeconvolve), [Berglund (0.2.0)](https://github.com/SpatialTranscriptomicsResearch/std-poisson), [SpiceMix](https://github.com/ma-compbio/SpiceMIx), [RCTD (spacexr 2.0.0)]( https://github.com/dmcable/spacexr), [STRIDE](https://github.com/DongqingSun96/STRIDE), [DestVI (scvi-tools 0.16.0)](https://github.com/scverse/scvi-tools) and [SpatialDecon](https://github.com/Nanostring-Biostats/SpatialDecon.git).
 
 In the `/evaluation & visualization`, we implemented the visualization and quantification of all figures in our manuscript and supplementary materials. 
+
+
+To test all methods on example dataset (seqFISH+ with 10000 genes), you could download the [file](https://drive.google.com/file/d/1rbUEt0q2BnPOAKLFQnwVmOB9kgVuQ6Ly/view?usp=sharing) and put it into `/methods`. 
+Each method contains a file including the README file and its implementation on example dataset.
